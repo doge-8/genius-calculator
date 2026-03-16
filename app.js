@@ -4,7 +4,7 @@
 
 // ============ Language System ============
 const i18n = {
-  currentLang: 'en',
+  currentLang: 'zh',
 
   translations: {
     en: {
