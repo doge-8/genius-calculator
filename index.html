@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genius Airdrop GP Calculator</title>
+  <style>
+    :root {
+      --bg: #05040b;
+      --bg-soft: #080716;
+      --card: rgba(10, 10, 20, 0.94);
+      --accent: #a855f7;
+      --accent-soft: rgba(168, 85, 247, 0.25);
+      --accent-2: #fbbf24;
+      --accent-3: #22c9c9;
+      --border-subtle: rgba(148, 163, 184, 0.25);
+      --text-main: #e5e7eb;
+      --text-soft: #9ca3af;
+      --text-muted: #6b7280;
+      --danger: #f97373;
+      --positive: #34d399;
+      --radius-lg: 18px;
+      --shadow-soft: 0 28px 70px rgba(0, 0, 0, 0.9);
+      --blur: 20px;
+      --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+      background: radial-gradient(circle at top left, rgba(168, 85, 247, 0.18), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(34, 201, 201, 0.14), transparent 55%),
+                  linear-gradient(145deg, #030014 0%, #05040b 40%, #02010a 100%);
+      color: var(--text-main);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px;
+      font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1120px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(248, 250, 252, 0.05), rgba(15, 23, 42, 0.5)) border-box;
+      padding: 1px;
+    }
+
+    .app {
+      border-radius: 28px;
+      background: radial-gradient(circle at top left, rgba(88, 28, 135, 0.3), transparent 60%),
+                  radial-gradient(circle at bottom right, rgba(8, 47, 73, 0.25), transparent 60%),
+                  linear-gradient(145deg, rgba(10, 10, 18, 0.96), rgba(10, 10, 22, 0.98));
+      box-shadow: var(--shadow-soft);
+      padding: 24px;
+      backdrop-filter: blur(24px);
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+
+    .title-block h1 {
+      font-size: 1.3rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-credits {
+      font-size: 0.72rem;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-credits a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+
+    .header-credits a:hover {
+      color: var(--accent-2);
+    }
+
+    .credit-sep {
+      color: var(--text-muted);
+    }
+
+    .lang-btn {
+      font-size: 0.72rem;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      color: var(--accent);
+      background: rgba(168, 85, 247, 0.08);
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .lang-btn:hover {
+      background: rgba(168, 85, 247, 0.16);
+      border-color: var(--accent);
+    }
+
+    .share-btn, .export-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid rgba(34, 201, 201, 0.4);
+      background: rgba(34, 201, 201, 0.07);
+      color: var(--accent-3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition);
+      flex-shrink: 0;
+    }
+
+    .share-btn:hover, .export-btn:hover {
+      background: rgba(34, 201, 201, 0.16);
+      border-color: var(--accent-3);
+    }
+
+    .share-btn svg, .export-btn svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    .explainer-blurb {
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.05), rgba(34, 201, 201, 0.04));
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      font-size: 0.74rem;
+      color: var(--text-soft);
+      line-height: 1.55;
+    }
+
+    .explainer-blurb strong {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .tg-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(34, 201, 201, 0.08), rgba(168, 85, 247, 0.06));
+      border: 1px solid rgba(34, 201, 201, 0.25);
+      text-decoration: none;
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      line-height: 1.4;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .tg-banner:hover {
+      border-color: var(--accent-3);
+      background: linear-gradient(135deg, rgba(34, 201, 201, 0.12), rgba(168, 85, 247, 0.08));
+      color: var(--text-main);
+    }
+
+    .tg-banner-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      color: var(--accent-3);
+    }
+
+    .tg-banner-text {
+      flex: 1;
+    }
+
+    .tg-banner-arrow {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--accent-3);
+      opacity: 0.6;
+    }
+
+    .countdown-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 6px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(34, 201, 201, 0.28);
+      background: rgba(34, 201, 201, 0.05);
+      margin-bottom: 14px;
+      font-size: 0.68rem;
+      color: var(--text-soft);
+      letter-spacing: 0.04em;
+      flex-wrap: wrap;
+    }
+
+    .countdown-bar .cd-accent {
+      color: var(--accent-3);
+      font-weight: 500;
+    }
+
+    .countdown-bar .cd-sep {
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 270px) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .panel {
+      border-radius: var(--radius-lg);
+      background: rgba(10, 10, 20, 0.95);
+      border: 1px solid var(--border-subtle);
+      padding: 14px 16px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at top, rgba(168, 85, 247, 0.1), transparent 60%),
+                  radial-gradient(circle at left, rgba(34, 201, 201, 0.06), transparent 65%);
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .panel-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .panel-title {
+      font-size: 0.88rem;
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .panel-sub {
+      font-size: 0.72rem;
+      color: var(--text-soft);
+      margin-top: 2px;
+    }
+
+    .panel-sub a {
+      color: var(--accent-3);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(34,201,201,0.4);
+    }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .input-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-soft);
+    }
+
+    .input-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(12, 10, 22, 0.96);
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      padding: 6px 10px;
+      transition: border-color var(--transition);
+    }
+
+    .input-field:focus-within {
+      border-color: rgba(168, 85, 247, 0.5);
+    }
+
+    .input-field span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .input-field input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 0.84rem;
+      width: 100%;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .input-field input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .input-field input::-webkit-outer-spin-button,
+    .input-field input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-size: 0.72rem;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: var(--text-soft);
+      background: rgba(15, 23, 42, 0.7);
+      cursor: pointer;
+      transition: all var(--transition);
+      user-select: none;
+    }
+
+    .chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .chip.active {
+      border-color: var(--accent);
+      background: rgba(168, 85, 247, 0.15);
+      color: #f0e6ff;
+    }
+
+    .vest-chip {
+      font-size: 0.72rem;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: var(--text-soft);
+      background: rgba(15, 23, 42, 0.7);
+      cursor: pointer;
+      transition: all var(--transition);
+      user-select: none;
+    }
+
+    .vest-chip:hover {
+      border-color: var(--accent-3);
+      color: var(--accent-3);
+    }
+
+    .vest-chip.active {
+      border-color: var(--accent-3);
+      background: rgba(34, 201, 201, 0.12);
+      color: #d0fffe;
+    }
+
+    .vest-chip small {
+      opacity: 0.55;
+      font-size: 0.6rem;
+    }
+
+    .gp-note {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .readout-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px 14px 0 0;
+      background: linear-gradient(120deg, rgba(15, 23, 42, 0.95), rgba(12, 10, 28, 0.95));
+      min-height: 44px;
+      gap: 12px;
+    }
+
+    .readout-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .readout-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .readout-value {
+      font-size: 0.82rem;
+      color: var(--text-main);
+    }
+
+    .readout-right {
+      text-align: right;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    .readout-right .highlight {
+      color: var(--accent-2);
+      font-weight: 500;
+    }
+
+    .readout-right .positive {
+      color: var(--positive);
+    }
+
+    .readout-right .negative {
+      color: var(--danger);
+    }
+
+    .matrix-wrapper {
+      overflow: auto;
+      border-radius: 0 0 14px 14px;
+      border: 1px solid var(--border-subtle);
+      border-top: none;
+      background: rgba(10, 10, 22, 0.98);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 520px;
+      font-size: 0.76rem;
+    }
+
+    thead {
+      background: rgba(15, 23, 42, 0.95);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      text-align: right;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.6);
+      white-space: nowrap;
+    }
+
+    th:first-child, td:first-child {
+      text-align: left;
+      position: sticky;
+      left: 0;
+      background: inherit;
+      z-index: 1;
+    }
+
+    th {
+      font-weight: 500;
+      color: var(--text-soft);
+      font-size: 0.72rem;
+    }
+
+    th.axis-label {
+      text-align: left;
+      font-size: 0.66rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    tbody tr td {
+      background: rgba(10, 12, 24, 0.98);
+      transition: background var(--transition);
+    }
+
+    tbody tr:nth-child(even) td {
+      background: rgba(18, 20, 36, 0.95);
+    }
+
+    tbody tr:hover td {
+      background: rgba(168, 85, 247, 0.06);
+    }
+
+    tbody tr:hover td:first-child {
+      color: var(--accent);
+    }
+
+    td.value-cell {
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all var(--transition);
+      user-select: none;
+    }
+
+    td.value-cell:hover {
+      background: rgba(168, 85, 247, 0.15) !important;
+    }
+
+    td.value-cell.selected {
+      background: rgba(168, 85, 247, 0.28) !important;
+      color: #f0e6ff;
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px rgba(168, 85, 247, 0.5);
+    }
+
+    td.value-cell.negative-roi {
+      color: var(--danger);
+    }
+
+    th.col-highlighted {
+      color: var(--accent) !important;
+      font-weight: 600;
+    }
+
+    td.row-label-highlighted {
+      color: var(--accent) !important;
+      font-weight: 600;
+    }
+
+    .ev-card {
+      margin-top: 12px;
+      border-radius: 12px;
+      background: rgba(12, 10, 24, 0.95);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+
+    .ev-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      cursor: default;
+      gap: 12px;
+    }
+
+    .ev-summary-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .ev-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .ev-value {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .ev-value.positive { color: var(--positive); }
+    .ev-value.negative { color: var(--danger); }
+
+    .ev-summary-right {
+      display: flex;
+      gap: 16px;
+    }
+
+    .ev-metric {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1px;
+    }
+
+    .ev-metric-label {
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .ev-metric-value {
+      font-size: 0.82rem;
+      color: var(--text-soft);
+    }
+
+    .ev-toggle {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: none;
+      border: none;
+      border-top: 1px solid rgba(30, 41, 59, 0.5);
+      width: 100%;
+      cursor: pointer;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: color var(--transition);
+    }
+
+    .ev-toggle:hover {
+      color: var(--text-soft);
+    }
+
+    .ev-toggle svg {
+      width: 12px;
+      height: 12px;
+      transition: transform var(--transition);
+    }
+
+    .ev-toggle.open svg {
+      transform: rotate(180deg);
+    }
+
+    .ev-details {
+      padding: 0 14px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 300ms cubic-bezier(0.16, 1, 0.3, 1), padding 300ms;
+    }
+
+    .ev-details.open {
+      max-height: 200px;
+      padding: 8px 14px 12px;
+    }
+
+    .ev-formula {
+      font-size: 0.72rem;
+      color: var(--text-soft);
+      line-height: 1.5;
+      font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .ev-placeholder {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .footnote {
+      margin-top: 10px;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .vest-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 270px) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .vest-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .vest-section-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+    }
+
+    .vest-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 640px) {
+      .vest-kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .vest-kpi {
+      background: rgba(12, 10, 24, 0.96);
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .vest-kpi-label {
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .vest-kpi-value {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .vest-chart-wrap {
+      background: rgba(12, 10, 24, 0.96);
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 12px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .vest-chart-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .vest-chart-reset {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      float: right;
+      transition: color var(--transition);
+    }
+
+    .vest-chart-reset:hover {
+      color: var(--accent-3);
+    }
+
+    .vest-table-wrap {
+      margin-bottom: 12px;
+    }
+
+    .vest-table-scroll {
+      max-height: 240px;
+      overflow-y: auto;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .vest-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.74rem;
+      min-width: 0;
+    }
+
+    .vest-table thead {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    .vest-table th {
+      padding: 6px 10px;
+      text-align: right;
+      font-weight: 500;
+      color: var(--text-soft);
+      font-size: 0.68rem;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.7);
+      white-space: nowrap;
+    }
+
+    .vest-table th:first-child {
+      text-align: left;
+    }
+
+    .vest-table td {
+      padding: 5px 10px;
+      text-align: right;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.4);
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    .vest-table td:first-child {
+      text-align: left;
+      color: var(--text-soft);
+    }
+
+    .vest-table tbody tr:nth-child(even) td {
+      background: rgba(18, 20, 36, 0.6);
+    }
+
+    .vest-table tbody tr.vest-tge-row td {
+      background: rgba(34, 201, 201, 0.08);
+      color: var(--accent-3);
+    }
+
+    .vest-table tfoot td {
+      font-weight: 700;
+      font-size: 0.78rem;
+      border-top: 2px solid rgba(34, 201, 201, 0.5);
+      background: rgba(10, 12, 24, 0.98);
+      color: var(--accent-3);
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
+      padding: 8px 10px;
+    }
+
+    .vest-ref-section {
+      margin-top: 4px;
+    }
+
+    .vest-ref-section-title {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .vest-ref-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .vest-ref-card {
+      background: rgba(12, 10, 24, 0.96);
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      overflow: hidden;
+      transition: border-color var(--transition);
+    }
+
+    .vest-ref-card:hover {
+      border-color: rgba(148, 163, 184, 0.3);
+    }
+
+    .vest-ref-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .vest-ref-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .vest-ref-ticker {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--accent-3);
+    }
+
+    .vest-ref-desc {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .vest-ref-summary {
+      font-size: 0.66rem;
+      color: var(--text-soft);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .vest-ref-chevron {
+      width: 14px;
+      height: 14px;
+      color: var(--text-muted);
+      transition: transform var(--transition);
+      flex-shrink: 0;
+    }
+
+    .vest-ref-card.open .vest-ref-chevron {
+      transform: rotate(180deg);
+    }
+
+    .vest-ref-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .vest-ref-card.open .vest-ref-body {
+      max-height: 300px;
+    }
+
+    .vest-ref-body-inner {
+      padding: 0 12px 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px 16px;
+    }
+
+    .vest-ref-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      padding: 2px 0;
+    }
+
+    .vest-ref-row-label {
+      color: var(--text-muted);
+    }
+
+    .vest-ref-row-value {
+      color: var(--text-soft);
+      text-align: right;
+    }
+
+    .vest-ref-source {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      text-align: right;
+      padding: 0 12px 8px;
+      opacity: 0.6;
+    }
+
+    .vest-ref-source a {
+      color: var(--text-muted);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(148, 163, 184, 0.3);
+    }
+
+    .vest-ref-source a:hover {
+      color: var(--accent-3);
+    }
+
+    .adjust-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px 0;
+      margin-top: 6px;
+      background: none;
+      border: none;
+      border-top: 1px solid rgba(30, 41, 59, 0.5);
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-soft);
+      transition: color var(--transition);
+    }
+
+    .adjust-toggle-btn:hover {
+      color: var(--accent-3);
+    }
+
+    .adjust-toggle-btn svg {
+      width: 13px;
+      height: 13px;
+      transition: transform var(--transition);
+      color: var(--accent-3);
+      flex-shrink: 0;
+    }
+
+    .adjust-toggle-btn.open svg {
+      transform: rotate(180deg);
+    }
+
+    .adjust-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 350ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .adjust-body.open {
+      max-height: 600px;
+    }
+
+    .vest-save-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .vest-save-btn {
+      font-size: 0.7rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 201, 201, 0.45);
+      color: var(--accent-3);
+      background: rgba(34, 201, 201, 0.06);
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .vest-save-btn:hover:not(:disabled) {
+      background: rgba(34, 201, 201, 0.14);
+      border-color: var(--accent-3);
+    }
+
+    .vest-save-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .vest-save-label {
+      font-size: 0.64rem;
+      color: var(--text-muted);
+    }
+
+    .feat-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 270px) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .feat-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .feat-inputs-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feat-output-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feat-section-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+    }
+
+    .feat-blurb {
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(34, 201, 201, 0.04), rgba(168, 85, 247, 0.03));
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      font-size: 0.72rem;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
+    .feat-select {
+      background: rgba(12, 10, 22, 0.96);
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      padding: 6px 10px;
+      color: var(--text-main);
+      font-size: 0.8rem;
+      font-family: inherit;
+      width: 100%;
+      outline: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+    }
+
+    .feat-select:focus {
+      border-color: rgba(34, 201, 201, 0.5);
+    }
+
+    .feat-select option {
+      background: #0a0a14;
+      color: var(--text-main);
+    }
+
+    .vol-split-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .vol-split-label {
+      font-size: 0.68rem;
+      color: var(--text-soft);
+      min-width: 90px;
+      white-space: nowrap;
+    }
+
+    .vol-split-input {
+      width: 48px;
+      background: rgba(12, 10, 22, 0.96);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 3px 6px;
+      color: var(--text-main);
+      font-size: 0.74rem;
+      text-align: right;
+      outline: none;
+      font-family: inherit;
+      -moz-appearance: textfield;
+    }
+
+    .vol-split-input:focus {
+      border-color: rgba(34, 201, 201, 0.5);
+    }
+
+    .vol-split-input::-webkit-outer-spin-button,
+    .vol-split-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .vol-split-pct {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .vol-split-bar-wrap {
+      flex: 1;
+      height: 6px;
+      background: rgba(148, 163, 184, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .vol-split-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 200ms ease;
+    }
+
+    .vol-split-total {
+      font-size: 0.66rem;
+      text-align: right;
+      margin-top: 2px;
+    }
+
+    .vol-split-total.ok { color: var(--positive); }
+    .vol-split-total.error { color: var(--danger); }
+
+    .vol-stacked-bar {
+      height: 24px;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      background: rgba(148, 163, 184, 0.08);
+      margin-bottom: 8px;
+    }
+
+    .vol-stacked-seg {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.58rem;
+      color: rgba(255,255,255,0.7);
+      white-space: nowrap;
+      overflow: hidden;
+      transition: width 200ms ease;
+    }
+
+    .vol-bar-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .vol-bar-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.64rem;
+      color: var(--text-soft);
+    }
+
+    .vol-bar-legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .ma-chart-wrap {
+      background: rgba(12, 10, 24, 0.96);
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 12px;
+    }
+
+    .ma-chart-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .ma-optimal {
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(34, 201, 201, 0.06);
+      border: 1px solid rgba(34, 201, 201, 0.2);
+      font-size: 0.72rem;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
+    .ma-optimal strong {
+      color: var(--accent-3);
+      font-weight: 500;
+    }
+
+    .feat-disclaimer {
+      margin-top: 14px;
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(249, 115, 115, 0.03);
+      border: 1px solid rgba(249, 115, 115, 0.12);
+    }
+
+    .pair-selector-outer {
+      position: relative;
+      min-height: 200px;
+    }
+
+    .pair-selector-content {
+      opacity: 0.6;
+      filter: blur(1px);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .pair-selector-content .pair-card {
+      background: rgba(12, 10, 24, 0.96);
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      padding: 10px 14px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pair-card-name {
+      font-size: 0.82rem;
+      color: var(--text-main);
+      font-weight: 500;
+      min-width: 100px;
+    }
+
+    .pair-card-sparkline {
+      flex: 1;
+      height: 28px;
+    }
+
+    .pair-card-metrics {
+      display: flex;
+      gap: 14px;
+    }
+
+    .pair-card-metric {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .pair-chain-pills {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    .pair-chain-pill {
+      font-size: 0.72rem;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: var(--text-soft);
+      background: rgba(15, 23, 42, 0.6);
+    }
+
+    .pair-chain-pill.active {
+      border-color: var(--accent);
+      background: rgba(168, 85, 247, 0.12);
+      color: #f0e6ff;
+    }
+
+    .pair-frost-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 4, 11, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px 24px;
+      z-index: 5;
+    }
+
+    .pair-frost-overlay h3 {
+      font-size: 1.1rem;
+      color: var(--accent-3);
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+    }
+
+    .pair-frost-overlay .frost-sub {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      max-width: 380px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .pair-frost-notify {
+      padding: 8px 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 201, 201, 0.5);
+      background: rgba(34, 201, 201, 0.1);
+      color: var(--accent-3);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .pair-frost-notify:hover {
+      background: rgba(34, 201, 201, 0.2);
+      border-color: var(--accent-3);
+    }
+
+    .site-footer {
+      margin-top: 16px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(30, 41, 59, 0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.62rem;
+      color: var(--text-muted);
+    }
+
+    .site-footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(148, 163, 184, 0.3);
+      transition: color var(--transition);
+    }
+
+    .site-footer a:hover {
+      color: var(--accent-3);
+    }
+
+    .share-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: rgba(10, 10, 20, 0.96);
+      border: 1px solid rgba(34, 201, 201, 0.5);
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 0.76rem;
+      color: var(--accent-3);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      white-space: nowrap;
+    }
+
+    .share-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+
+    .vest-chart-handle {
+      cursor: ns-resize;
+      transition: r 120ms ease;
+    }
+
+    .vest-chart-handle:hover,
+    .vest-chart-handle.dragging {
+      r: 7;
+      filter: drop-shadow(0 0 6px rgba(34, 201, 201, 0.6));
+    }
+
+    .vest-chart-tooltip {
+      position: absolute;
+      background: rgba(10, 10, 20, 0.95);
+      border: 1px solid rgba(34, 201, 201, 0.4);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.68rem;
+      color: var(--accent-3);
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 10px;
+      }
+      .app {
+        padding: 14px;
+      }
+      .shell, .app {
+        border-radius: 20px;
+      }
+      .title-block h1 {
+        font-size: 1.05rem;
+      }
+      .countdown-bar {
+        gap: 8px;
+        font-size: 0.62rem;
+      }
+      .countdown-bar .cd-sep {
+        display: none;
+      }
+      .vest-kpi {
+        padding: 6px 8px;
+      }
+      .vest-kpi-value {
+        font-size: 0.8rem;
+      }
+      .chip, .vest-chip {
+        padding: 6px 12px;
+        font-size: 0.74rem;
+      }
+      .input-field {
+        padding: 8px 10px;
+      }
+      .input-field input {
+        font-size: 0.88rem;
+      }
+      table {
+        font-size: 0.72rem;
+        min-width: 460px;
+      }
+      th, td {
+        padding: 10px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <noscript><p style="color:#e5e7eb;text-align:center;padding:40px;">Please enable JavaScript to use the Genius GP Calculator.</p></noscript>
+  <div class="shell">
+    <div class="app">
+      <header>
+        <div class="title-block">
+          <h1 data-i18n="title">Genius Airdrop GP Calculator</h1>
+        </div>
+        <div class="header-actions">
+          <span class="header-credits">
+            <span data-i18n="originalAuthor">Original by</span> <a href="https://t.me/toolsmith0xdiscussion" target="_blank" rel="noopener">@0xtoolsmith</a>
+            <span class="credit-sep">·</span>
+            <span data-i18n="chineseBy">Chinese by</span> <a href="https://x.com/188888_x" target="_blank" rel="noopener">@岳来岳会赚</a>
+          </span>
+          <button class="lang-btn" id="langBtn" title="Switch Language">EN / 中文</button>
+          <button class="share-btn" id="shareBtn" title="Copy shareable link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+          </button>
+          <button class="export-btn" id="exportBtn" title="Save as PNG">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="explainer-blurb">
+        <strong data-i18n="howItWorks">How this works</strong>
+        <br><strong style="color:var(--accent-2);" data-i18n="gpValueMatrix">GP Value Matrix</strong> - <span data-i18n="gpValueMatrixDesc">Shows estimated $/GP across FDV and airdrop allocation scenarios. Click any cell, then enter your GP balance and farming costs for personalized P&L.</span>
+        <br><strong style="color:var(--accent);" data-i18n="vestingSimulator">Vesting Simulator</strong> - <span data-i18n="vestingSimulatorDesc">Models your token unlock timeline with draggable price curves for cliff and linear vesting.</span>
+        <br><strong style="color:var(--accent-3);" data-i18n="volumeOptimizer">Volume Optimizer</strong> - <span data-i18n="volumeOptimizerDesc">Model your GP share from the fixed weekly pool based on platform volume and community-observed efficiency bands.</span>
+        <br><br><span style="font-size:0.65rem;color:var(--text-muted);" data-i18n="disclaimer">Disclaimer: Built by a regular user, not the Genius team. All numbers and interpretations are my own opinion and not financial advice. DYOR.</span>
+      </div>
+
+      <a class="tg-banner" href="https://t.me/toolsmith0xdiscussion" target="_blank" rel="noopener noreferrer">
+        <svg class="tg-banner-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        <span class="tg-banner-text" data-i18n="tgBannerText">Thinking about GP pricing or new crypto tools? Join the 0xtoolsmith Telegram to discuss models, suggest ideas, and collaborate on possible deals.</span>
+        <svg class="tg-banner-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </a>
+
+      <div class="countdown-bar" id="countdownBar">
+        <span><span data-i18n="season1Ends">Season 1 ends</span> <span class="cd-accent" id="cdDays">27</span> <span data-i18n="days">days</span></span>
+        <span class="cd-sep">|</span>
+        <span><span class="cd-accent" id="cdWeeks">4</span> <span data-i18n="weeksLeft">weeks left</span></span>
+        <span class="cd-sep">|</span>
+        <span><span class="cd-accent" id="cdGpRemaining">40M</span> <span data-i18n="gpRemaining">GP remaining (10M/week)</span></span>
+      </div>
+
+      <p style="color:var(--text-soft);font-size:0.82rem;margin:10px 0 4px;" data-i18n="matrixIntro">Estimate your GP value across FDV scenarios and airdrop allocation bands. Click any cell to lock in a scenario.</p>
+
+      <div class="layout">
+        <!-- Left sidebar: Parameters -->
+        <section class="panel">
+          <div class="panel-content">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title" data-i18n="parameters">Parameters</div>
+                <div class="panel-sub" data-i18n="parametersSub">Set your inputs, then click a cell in the matrix.</div>
+              </div>
+            </div>
+
+            <div class="input-row">
+              <label class="input-label" data-i18n="season1GpSupply">Season 1 GP supply</label>
+              <div class="input-field">
+                <span>GP</span>
+                <input id="totalGp" type="text" inputmode="numeric" value="200,000,000">
+              </div>
+            </div>
+
+            <div class="input-row">
+              <label class="input-label" data-i18n="yourGpBalance">Your GP balance</label>
+              <div class="input-field">
+                <span>GP</span>
+                <input id="userGp" type="text" inputmode="numeric" placeholder="e.g. 1,000" data-i18n-placeholder="egGp">
+              </div>
+            </div>
+
+            <div class="input-row">
+              <label class="input-label" data-i18n="farmingCosts">Farming costs (USD)</label>
+              <div class="input-field">
+                <span>$</span>
+                <input id="farmingCost" type="text" inputmode="numeric" placeholder="Total spent farming" data-i18n-placeholder="totalSpentFarming">
+              </div>
+            </div>
+
+            <div class="chips-row" style="margin-top: 4px;">
+              <button class="vest-chip" data-gpadd="60000000">+60M <small>(PreS1+2)</small></button>
+              <button class="vest-chip" data-gpadd="5000000">+5M <small data-i18n="spinWheel">(Spin Wheel)</small></button>
+            </div>
+            <div class="gp-note" data-i18n="gpNote">Base: 200M S1 GP. Toggle extras to add to supply. *Docs previously stated 10M GP, later changed to 50M GP, then 200M.</div>
+          </div>
+        </section>
+
+        <!-- Right: Matrix -->
+        <section class="panel">
+          <div class="panel-content">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title" data-i18n="gpValueMatrixTitle">GP value matrix</div>
+                <div class="panel-sub" data-i18n="gpValueMatrixSub">Price per GP at each FDV × airdrop % scenario</div>
+              </div>
+            </div>
+
+            <div id="selectionReadout" class="readout-bar">
+              <div class="readout-left">
+                <span class="readout-hint" id="readoutHint" data-i18n="clickCellHint">Click any cell to lock a scenario</span>
+                <span class="readout-value" id="readoutTitle" style="display: none;"></span>
+              </div>
+              <div class="readout-right" id="readoutMetrics"></div>
+            </div>
+
+            <div class="matrix-wrapper">
+              <table id="matrixTable">
+                <thead>
+                  <tr>
+                    <th class="axis-label">FDV</th>
+                    <th data-pct="2.5">2.5%</th>
+                    <th data-pct="5">5%</th>
+                    <th data-pct="7.5">7.5%</th>
+                    <th data-pct="10">10%</th>
+                    <th data-pct="15">15%</th>
+                    <th data-pct="20">20%</th>
+                  </tr>
+                </thead>
+                <tbody id="matrixBody"></tbody>
+              </table>
+            </div>
+
+            <div class="ev-card" id="evCard">
+              <div class="ev-summary" id="evSummary">
+                <div class="ev-summary-left">
+                  <span class="ev-label" data-i18n="pnl">PnL</span>
+                  <span class="ev-value" id="evMainValue">
+                    <span class="ev-placeholder" data-i18n="selectCellAbove">Select a cell above</span>
+                  </span>
+                </div>
+                <div class="ev-summary-right" id="evMetrics" style="display:none;">
+                  <div class="ev-metric">
+                    <span class="ev-metric-label" data-i18n="gross">Gross</span>
+                    <span class="ev-metric-value" id="evGross">-</span>
+                  </div>
+                  <div class="ev-metric">
+                    <span class="ev-metric-label" data-i18n="costs">Costs</span>
+                    <span class="ev-metric-value" id="evCosts">-</span>
+                  </div>
+                  <div class="ev-metric">
+                    <span class="ev-metric-label">ROI</span>
+                    <span class="ev-metric-value" id="evRoi">-</span>
+                  </div>
+                </div>
+              </div>
+              <button class="ev-toggle" id="evToggle" style="display:none;">
+                <span data-i18n="showBreakdown">Show breakdown</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </button>
+              <div class="ev-details" id="evDetails">
+                <div class="ev-formula" id="evFormula"></div>
+              </div>
+            </div>
+
+            <div class="footnote">
+              <span data-i18n="footnote1">Hover rows to scan FDV slices. Click to lock a cell and see your PnL.</span>
+              <span data-i18n="footnote2">Adjust total GP to reflect final tokenomics.</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Vesting Section -->
+      <section class="panel" style="margin-top: 16px;">
+        <div class="panel-content">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title" data-i18n="vestingScheduleSimulator">Vesting Schedule Simulator</div>
+              <div class="panel-sub"><span data-i18n="vestingModelDesc">Model your token unlock timeline. Defaults based on</span> <a href="https://docs.asterdex.com/usdaster/tokenomics" target="_blank" rel="noopener">Aster tokenomics</a>.</div>
+            </div>
+          </div>
+
+          <div class="vest-layout">
+            <div class="vest-inputs">
+              <div class="vest-section-label" data-i18n="scenarioInputs">Scenario inputs</div>
+              <div class="chips-row" style="margin-bottom: 8px;">
+                <button class="vest-chip active" data-vpreset="aster-s1">ASTER S1</button>
+                <button class="vest-chip" data-vpreset="opn">OPN</button>
+              </div>
+
+              <div class="input-row">
+                <label class="input-label" data-i18n="fdvAtTge">FDV at TGE (USD)</label>
+                <div class="input-field">
+                  <span>$</span>
+                  <input id="vestFdv" type="text" inputmode="numeric" value="5,000,000,000">
+                </div>
+                <div class="chips-row">
+                  <button class="vest-chip" data-vfdv="250000000">250M</button>
+                  <button class="vest-chip" data-vfdv="500000000">500M</button>
+                  <button class="vest-chip" data-vfdv="1000000000">1B</button>
+                  <button class="vest-chip active" data-vfdv="5000000000">5B</button>
+                  <button class="vest-chip" data-vfdv="10000000000">10B</button>
+                </div>
+              </div>
+
+              <div class="input-row">
+                <label class="input-label" data-i18n="airdropPct">Airdrop % of supply (TGE unlock)</label>
+                <div class="input-field">
+                  <span>%</span>
+                  <input id="vestAirdropPct" type="text" inputmode="decimal" value="8.8">
+                </div>
+                <div class="chips-row">
+                  <button class="vest-chip active" data-vairdrop="8.8">8.8% (ASTER TGE)</button>
+                  <button class="vest-chip" data-vairdrop="23.5">23.5% (OPN)</button>
+                </div>
+              </div>
+
+              <div class="input-row" style="margin-top: 10px;">
+                <label class="input-label" data-i18n="yourGpBalanceForCalc">Your GP balance (for value calc)</label>
+                <div class="input-field">
+                  <span>GP</span>
+                  <input id="vestUserGp" type="text" inputmode="numeric" placeholder="e.g. 1,000" data-i18n-placeholder="egGp">
+                </div>
+              </div>
+
+              <button class="adjust-toggle-btn" id="adjustToggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <span data-i18n="adjustAssumptions">Adjust assumptions (vesting, cliff)</span>
+              </button>
+              <div class="adjust-body" id="adjustBody">
+                <div class="vest-section-label" style="margin-top: 10px;" data-i18n="vestingParameters">Vesting parameters</div>
+
+                <div class="input-row">
+                  <label class="input-label" data-i18n="unlockedAtTge">Unlocked at TGE</label>
+                  <div class="input-field">
+                    <span>%</span>
+                    <input id="vestTgePct" type="text" inputmode="numeric" value="100">
+                  </div>
+                  <div class="chips-row">
+                    <button class="vest-chip" data-vtge="15">15% (OPN)</button>
+                    <button class="vest-chip active" data-vtge="100">100% (ASTER)</button>
+                  </div>
+                </div>
+
+                <div class="input-row">
+                  <label class="input-label" data-i18n="remainingVestPeriod">Remaining vest period</label>
+                  <div class="input-field">
+                    <span>mo</span>
+                    <input id="vestMonths" type="text" inputmode="numeric" value="0">
+                  </div>
+                  <div class="chips-row">
+                    <button class="vest-chip active" data-vmo="0">0 mo (ASTER TGE)</button>
+                    <button class="vest-chip" data-vmo="7">7 mo (OPN)</button>
+                    <button class="vest-chip" data-vmo="80">80 mo</button>
+                    <button class="vest-chip" data-vmo="24">24 mo</button>
+                  </div>
+                </div>
+
+                <div class="input-row">
+                  <label class="input-label" data-i18n="cliffBeforeVest">Cliff before vest starts</label>
+                  <div class="input-field">
+                    <span>mo</span>
+                    <input id="vestCliff" type="text" inputmode="numeric" value="0">
+                  </div>
+                  <div class="chips-row">
+                    <button class="vest-chip active" data-vcliff="0" data-i18n="none">None</button>
+                    <button class="vest-chip" data-vcliff="1">1 mo</button>
+                    <button class="vest-chip" data-vcliff="6">6 mo</button>
+                    <button class="vest-chip" data-vcliff="12">12 mo</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="vest-output">
+              <div class="vest-kpi-row">
+                <div class="vest-kpi">
+                  <span class="vest-kpi-label" data-i18n="totalRealized">Total realized</span>
+                  <span class="vest-kpi-value" id="vestTotalValue">-</span>
+                </div>
+                <div class="vest-kpi">
+                  <span class="vest-kpi-label" data-i18n="tgeSell">TGE sell</span>
+                  <span class="vest-kpi-value" id="vestTgeValue">-</span>
+                </div>
+                <div class="vest-kpi">
+                  <span class="vest-kpi-label" data-i18n="avgMonthlySell">Avg monthly sell</span>
+                  <span class="vest-kpi-value" id="vestMonthlyValue">-</span>
+                </div>
+                <div class="vest-kpi">
+                  <span class="vest-kpi-label" data-i18n="fullyVested">Fully vested</span>
+                  <span class="vest-kpi-value" id="vestFullDate">-</span>
+                </div>
+              </div>
+
+              <div class="vest-saved-scenarios" id="vestSavedScenarios">
+                <div class="vest-save-bar">
+                  <button class="vest-save-btn" id="vestSaveBtn" data-i18n="saveScenario">+ Save Scenario</button>
+                  <span class="vest-save-label" id="vestSaveLabel"></span>
+                </div>
+                <div id="vestSavedList"></div>
+              </div>
+
+              <div class="vest-chart-wrap" style="position: relative;">
+                <div class="vest-chart-title"><span data-i18n="momPriceChange">MoM price change (drag handles to adjust)</span> <span class="vest-chart-reset" id="resetPrices" data-i18n="reset">Reset</span></div>
+                <svg id="vestChartSvg" width="100%" height="220" style="display: block;"></svg>
+                <div class="vest-chart-tooltip" id="vestChartTooltip" style="display:none;"></div>
+              </div>
+
+              <div class="vest-table-wrap vest-table-compact">
+                <div class="vest-chart-title" data-i18n="monthlyBreakdown">Monthly breakdown</div>
+                <div class="vest-table-scroll">
+                  <table id="vestTable" class="vest-table">
+                    <thead>
+                      <tr>
+                        <th style="text-align:left" data-i18n="month">Month</th>
+                        <th data-i18n="unlockPct">Unlock %</th>
+                        <th data-i18n="cumPct">Cum. %</th>
+                        <th data-i18n="priceMult">Price Mult</th>
+                      </tr>
+                    </thead>
+                    <tbody id="vestTableBody"></tbody>
+                    <tfoot id="vestTableFoot"></tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="vest-ref-section">
+            <div class="vest-ref-section-title" data-i18n="yziLabsComparables">YZi Labs-backed comparables</div>
+            <div class="vest-ref-cards">
+              <div class="vest-ref-card" id="refOPN">
+                <div class="vest-ref-header" onclick="this.parentElement.classList.toggle('open')">
+                  <div class="vest-ref-header-left">
+                    <span class="vest-ref-ticker">$OPN</span>
+                    <span class="vest-ref-desc">Open Network · 1B supply</span>
+                  </div>
+                  <div class="vest-ref-summary">
+                    <span>Airdrop 23.5% · 15% TGE · 7mo vest</span>
+                    <svg class="vest-ref-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </div>
+                </div>
+                <div class="vest-ref-body">
+                  <div class="vest-ref-body-inner">
+                    <div class="vest-ref-row"><span class="vest-ref-row-label">Airdrop</span><span class="vest-ref-row-value">23.5% · 15% TGE · 7mo linear</span></div>
+                    <div class="vest-ref-row"><span class="vest-ref-row-label">Investors</span><span class="vest-ref-row-value">23% · 12mo cliff · 24mo linear</span></div>
+                    <div class="vest-ref-row"><span class="vest-ref-row-label">Team</span><span class="vest-ref-row-value">19.5% · 12mo cliff · 24mo linear</span></div>
+                    <div class="vest-ref-row"><span class="vest-ref-row-label">Foundation</span><span class="vest-ref-row-value">12% · 1% TGE</span></div>
+                    <div class="vest-ref-row"><span class="vest-ref-row-label">Ecosystem</span><span class="vest-ref-row-value">11.1% · 5.65% TGE</span></div>
+                    <div class="vest-ref-row"><span class="vest-ref-row-label">Liquidity</span><span class="vest-ref-row-value">2% · 100% TGE</span></div>
+                  </div>
+                  <div class="vest-ref-source"><a href="https://dropstab.com/coins/open-network/vesting" target="_blank" rel="noopener">Source: DropsTab</a></div>
+                </div>
+              </div>
+
+              <div class="vest-ref-card" id="refASTER">
+                <div class="vest-ref-header" onclick="this.parentElement.classList.toggle('open')">
+                  <div class="vest-ref-header-left">
+                    <span class="vest-ref-ticker">$ASTER</span>
+                    <span class="vest-ref-desc">Aster DEX · 8B supply · YZi Labs-backed</span>
+                  </div>
+                  <div class="vest-ref-summary">
+                    <span>Airdrop 53.5% · 8.8% TGE · 80mo vest</span>
+                    <svg class="vest-ref-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </div>
+                </div>
+                <div class="vest-ref-body">
+                  <div class="vest-ref-body-inner">
+                    <div class="vest-ref-row"><span class="vest-ref-row-label">TGE Airdrop</span><span class="vest-ref-row-value">8.8% · 100% at TGE (704M tokens)</span></div>
+                    <div class="vest-ref-row"><span class="vest-ref-row-label">Remaining Airdrop</span><span class="vest-ref-row-value">44.7% · 80mo linear</span></div>
+                    <div class="vest-ref-row"><span class="vest-ref-row-label">Ecosystem</span><span class="vest-ref-row-value">30% · 20mo linear</span></div>
+                    <div class="vest-ref-row"><span class="vest-ref-row-label">Team</span><span class="vest-ref-row-value">5% · 12mo cliff · 40mo linear</span></div>
+                    <div class="vest-ref-row"><span class="vest-ref-row-label">Treasury</span><span class="vest-ref-row-value">7% · Locked</span></div>
+                    <div class="vest-ref-row"><span class="vest-ref-row-label">Liquidity</span><span class="vest-ref-row-value">4.5% · 100% TGE</span></div>
+                  </div>
+                  <div class="vest-ref-source"><a href="https://docs.asterdex.com/usdaster/tokenomics" target="_blank" rel="noopener">Source: Aster Docs</a> · <a href="https://dropstab.com/coins/aster/vesting" target="_blank" rel="noopener">DropsTab</a></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Volume Optimizer -->
+      <section class="panel" style="margin-top: 16px;">
+        <div class="panel-content" style="padding: 16px;">
+          <div class="panel-title" style="font-size:0.88rem;font-weight:600;color:var(--accent-3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px;" data-i18n="volumeOptimizerTitle">Volume Optimizer</div>
+          <div class="feat-blurb" style="line-height:1.7;">
+            <span style="display:block;" data-i18n="voBlurb1">• Estimates your share of the fixed 10M weekly GP pool</span>
+            <span style="display:block;" data-i18n="voBlurb2">• Higher multiplier = more GP per dollar. Splitting across accounts can push you into a better band</span>
+            <span style="display:block;" data-i18n="voBlurb3">• Auto-fills GP pricing from the matrix above</span>
+          </div>
+          <div style="font-size:0.56rem;color:var(--text-muted);margin-top:2px;margin-bottom:8px;line-height:1.4;" data-i18n="voDisclaimer">Figures are approximate and will be refined as more empirical data becomes available.</div>
+
+          <div class="feat-grid">
+            <div class="feat-inputs-col">
+              <div class="feat-section-label" data-i18n="platformAssumptions">Platform assumptions</div>
+
+              <div class="input-row">
+                <label class="input-label" data-i18n="assumedPlatformWeeklyVolume">Assumed platform weekly volume</label>
+                <div class="input-field">
+                  <span>$</span>
+                  <input id="voPlatformVol" type="text" placeholder="e.g. 500,000,000" data-i18n-placeholder="egVolume">
+                </div>
+                <div class="chips-row">
+                  <button class="vest-chip" data-voplatvol="500000000">$500M</button>
+                  <button class="vest-chip" data-voplatvol="1000000000">$1B</button>
+                  <button class="vest-chip" data-voplatvol="1500000000">$1.5B</button>
+                </div>
+                <div style="font-size:0.58rem;color:var(--text-muted);margin-top:2px;" data-i18n="platformVolNote">Total volume across all traders on the platform each week. 10M GP is split proportionally among all participants.</div>
+              </div>
+
+              <div class="feat-section-label" style="margin-top: 6px;" data-i18n="yourTradingPlan">Your trading plan</div>
+
+              <div class="input-row">
+                <label class="input-label" data-i18n="yourWeeklyVolume">Your weekly volume (USD)</label>
+                <div class="input-field">
+                  <span>$</span>
+                  <input id="voVolume" type="text" inputmode="numeric" placeholder="e.g. 100,000" data-i18n-placeholder="egUserVolume">
+                </div>
+                <div class="chips-row">
+                  <button class="vest-chip" data-vovol="50000">$50K</button>
+                  <button class="vest-chip" data-vovol="100000">$100K</button>
+                  <button class="vest-chip" data-vovol="250000">$250K</button>
+                  <button class="vest-chip" data-vovol="500000">$500K</button>
+                  <button class="vest-chip" data-vovol="1000000">$1M</button>
+                </div>
+              </div>
+
+              <div class="input-row">
+                <label class="input-label" data-i18n="numberOfAccounts">Number of accounts</label>
+                <div class="input-field">
+                  <span>#</span>
+                  <input id="voNumAccounts" type="number" value="1" min="1" max="20" step="1" style="width:100%;">
+                </div>
+                <div style="font-size:0.58rem;color:var(--text-muted);margin-top:2px;" data-i18n="accountsNote">Volume is split evenly. Smaller per-account volume may land in a more efficient band.</div>
+              </div>
+
+              <div class="input-row">
+                <label class="input-label" data-i18n="accountLevel">Account level (for fees)</label>
+                <select id="voLevel" class="feat-select">
+                  <option value="1">Level 1 - Smart ($0-100K, 0.30%)</option>
+                  <option value="2" selected>Level 2 - Ultra Genius ($100K-1M, 0.20%)</option>
+                  <option value="3">Level 3 - Mastermind ($1M-10M, 0.10%)</option>
+                  <option value="4">Level 4 - Mogger Genius ($10M-100M, 0.05%)</option>
+                </select>
+                <div style="font-size:0.58rem;color:var(--text-muted);margin-top:2px;" data-i18n="levelNote">Affects fee rate on Major/Alt pairs. Stable/Native pairs are always 0.05%.</div>
+              </div>
+
+              <div class="feat-section-label" style="margin-top: 4px;" data-i18n="volumeSplitByPairType">Volume split by pair type</div>
+              <div id="voSplitArea">
+                <div class="vol-split-row">
+                  <span class="vol-split-label" data-i18n="stableStable">Stable-Stable</span>
+                  <input class="vol-split-input" id="voSplit0" type="number" value="100" min="0" max="100">
+                  <span class="vol-split-pct">%</span>
+                  <div class="vol-split-bar-wrap"><div class="vol-split-bar-fill" id="voSplitBar0" style="width:100%;background:rgba(34,201,201,0.5)"></div></div>
+                </div>
+                <div class="vol-split-row">
+                  <span class="vol-split-label" data-i18n="stableNative">Stable-Native</span>
+                  <input class="vol-split-input" id="voSplit1" type="number" value="0" min="0" max="100">
+                  <span class="vol-split-pct">%</span>
+                  <div class="vol-split-bar-wrap"><div class="vol-split-bar-fill" id="voSplitBar1" style="width:0%;background:rgba(168,85,247,0.5)"></div></div>
+                </div>
+                <div class="vol-split-row">
+                  <span class="vol-split-label" data-i18n="majorPairs">Major pairs</span>
+                  <input class="vol-split-input" id="voSplit2" type="number" value="0" min="0" max="100">
+                  <span class="vol-split-pct">%</span>
+                  <div class="vol-split-bar-wrap"><div class="vol-split-bar-fill" id="voSplitBar2" style="width:0%;background:rgba(251,191,36,0.5)"></div></div>
+                </div>
+                <div class="vol-split-row">
+                  <span class="vol-split-label" data-i18n="altLongTail">Alt / long-tail</span>
+                  <input class="vol-split-input" id="voSplit3" type="number" value="0" min="0" max="100">
+                  <span class="vol-split-pct">%</span>
+                  <div class="vol-split-bar-wrap"><div class="vol-split-bar-fill" id="voSplitBar3" style="width:0%;background:rgba(249,115,115,0.5)"></div></div>
+                </div>
+                <div class="vol-split-total ok" id="voSplitTotal">Total: 100%</div>
+              </div>
+
+              <div class="input-row" style="margin-top: 4px;">
+                <label class="input-label" data-i18n="gpPriceScenario">GP price scenario</label>
+                <div class="input-field">
+                  <span>$/GP</span>
+                  <input id="voGpPrice" type="text" inputmode="decimal" placeholder="Click a matrix cell or enter manually" data-i18n-placeholder="clickMatrixCell">
+                </div>
+                <div style="font-size:0.58rem;color:var(--text-muted);margin-top:2px;" data-i18n="gpPriceNote">Auto-fills when you select a cell in the GP Value Matrix above.</div>
+              </div>
+            </div>
+
+            <div class="feat-output-col">
+              <div class="vest-kpi-row">
+                <div class="vest-kpi">
+                  <span class="vest-kpi-label" data-i18n="estWeeklyGp">Est. weekly GP</span>
+                  <span class="vest-kpi-value" id="voKpiGp">-</span>
+                </div>
+                <div class="vest-kpi">
+                  <span class="vest-kpi-label" data-i18n="effCostPerGp">Eff. cost/GP</span>
+                  <span class="vest-kpi-value" id="voKpiCostPerGp">-</span>
+                </div>
+                <div class="vest-kpi">
+                  <span class="vest-kpi-label" data-i18n="blendedFeeRate">Blended fee rate</span>
+                  <span class="vest-kpi-value" id="voKpiFeeRate">-</span>
+                </div>
+                <div class="vest-kpi">
+                  <span class="vest-kpi-label" data-i18n="totalFeesPaid">Total fees paid</span>
+                  <span class="vest-kpi-value" id="voKpiFees">-</span>
+                </div>
+                <div class="vest-kpi">
+                  <span class="vest-kpi-label" data-i18n="airdropValue">Airdrop value</span>
+                  <span class="vest-kpi-value" id="voKpiValue">-</span>
+                </div>
+                <div class="vest-kpi">
+                  <span class="vest-kpi-label" data-i18n="netPnl">Net P&L</span>
+                  <span class="vest-kpi-value" id="voKpiNet" style="color: var(--text-soft);">-</span>
+                </div>
+              </div>
+
+              <div id="voMultiCompare" style="display:none;">
+                <div class="ma-optimal" id="voOptimalBlurb" style="margin-top:6px;"></div>
+              </div>
+
+              <div class="vest-chart-wrap">
+                <div class="vest-chart-title" data-i18n="volumeSplitByCategory">Volume split by pair category</div>
+                <div class="vol-stacked-bar" id="voStackedBar"></div>
+                <div class="vol-bar-legend" id="voBarLegend"></div>
+              </div>
+
+              <div class="ma-chart-wrap" id="voChartWrap">
+                <div class="ma-chart-title" data-i18n="efficiencyBandMultipliers">Efficiency band multipliers</div>
+                <svg id="voChartSvg" width="100%" height="200" style="display: block;"></svg>
+                <div style="font-size:0.58rem;color:var(--text-muted);margin-top:3px;" data-i18n="efficiencyNote">Based on loose user-reported data from community Telegram groups. Will be updated as more data appears over the coming weeks.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="feat-disclaimer" data-i18n="voFeatDisclaimer">
+            GP efficiency rates are community estimates, not official figures. Actual GP depends on total platform volume and pro-rata distribution.
+          </div>
+        </div>
+      </section>
+
+      <!-- Pair Selector TBA -->
+      <section class="panel" style="margin-top: 16px;">
+        <div class="panel-content" style="padding: 16px;">
+          <div class="pair-selector-outer" style="min-height:200px;">
+            <div class="pair-selector-content">
+              <div class="pair-chain-pills">
+                <span class="pair-chain-pill active">Arb</span>
+                <span class="pair-chain-pill">Base</span>
+                <span class="pair-chain-pill">BNB</span>
+                <span class="pair-chain-pill">Solana</span>
+              </div>
+              <div class="pair-card">
+                <span class="pair-card-name">████/████</span>
+                <svg class="pair-card-sparkline" viewBox="0 0 120 28"><path d="M0 20 Q10 8 20 14 T40 10 T60 18 T80 6 T100 16 T120 12" stroke="rgba(34,201,201,0.4)" fill="none" stroke-width="1.5"></path></svg>
+                <div class="pair-card-metrics"><span class="pair-card-metric">GP/Vol: ███</span></div>
+              </div>
+              <div class="pair-card">
+                <span class="pair-card-name">████/████</span>
+                <svg class="pair-card-sparkline" viewBox="0 0 120 28"><path d="M0 14 Q15 22 30 10 T60 20 T90 8 T120 18" stroke="rgba(168,85,247,0.4)" fill="none" stroke-width="1.5"></path></svg>
+                <div class="pair-card-metrics"><span class="pair-card-metric">GP/Vol: ███</span></div>
+              </div>
+              <div class="pair-card">
+                <span class="pair-card-name">████/████</span>
+                <svg class="pair-card-sparkline" viewBox="0 0 120 28"><path d="M0 10 Q20 24 40 16 T80 22 T120 8" stroke="rgba(251,191,36,0.4)" fill="none" stroke-width="1.5"></path></svg>
+                <div class="pair-card-metrics"><span class="pair-card-metric">GP/Vol: ███</span></div>
+              </div>
+            </div>
+
+            <div class="pair-frost-overlay">
+              <h3 data-i18n="pairSelectorTba">Pair Selector (TBA)</h3>
+              <p class="frost-sub" data-i18n="pairSelectorDesc">Coming soon - surfaces the best pairs for GP farming based on real-time volume, multipliers, fees, and liquidity routing.</p>
+              <a class="pair-frost-notify" href="https://t.me/toolsmith0xdiscussion" target="_blank" rel="noopener noreferrer" data-i18n="joinTgUpdates">Join Telegram for updates</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="site-footer">
+        <span><span data-i18n="originalAuthor">Original by</span> <a href="https://t.me/toolsmith0xdiscussion" target="_blank" rel="noopener">@0xtoolsmith</a> · <span data-i18n="chineseBy">Chinese by</span> <a href="https://x.com/188888_x" target="_blank" rel="noopener">@岳来岳会赚</a></span>
+        <span>Sources: <a href="https://docs.asterdex.com/usdaster/tokenomics" target="_blank" rel="noopener">Aster Docs</a> · <a href="https://dropstab.com/coins/aster/vesting" target="_blank" rel="noopener">DropsTab (ASTER)</a> · <a href="https://dropstab.com/coins/open-network/vesting" target="_blank" rel="noopener">DropsTab (OPN)</a></span>
+        <span><a href="https://www.tradegenius.com/ref/CDO1MG" target="_blank" rel="noopener" data-i18n="startTrading">Start trading on Genius here!</a> · <span data-i18n="lastUpdated">Last updated: Mar 2026. Not financial advice.</span></span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="share-toast" id="shareToast" data-i18n="linkCopied">Link copied to clipboard</div>
+
+  <script src="app.js"></script>
+</body>
+</html>
